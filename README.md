@@ -34,3 +34,12 @@ Dual-licensed under **MIT OR Apache-2.0** (you may choose either license).
 
 See `LICENSE-MIT` and `LICENSE-APACHE`.
 
+## Project posture (non-commercial, community)
+
+Koumakan is built as **non-commercial language infrastructure** for learners and communities.
+
+- We ask that downstream use **preserves attribution** and respects **source licensing/permissions**.
+- We do **not** intend paywalls, “API resale”, or other extractive commercialization of the lexicon.
+
+Note: the **code** is dual-licensed under MIT/Apache-2.0 as stated above. **Data/content** may have separate provenance and usage constraints depending on its source.
+
