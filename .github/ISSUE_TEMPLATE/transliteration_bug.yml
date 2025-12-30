@@ -1,0 +1,40 @@
+name: Transliteration bug (Latin ↔ N’Ko)
+description: Report an issue with deterministic transliteration or uncertainty marking
+title: "transliteration: "
+labels: ["data", "transliteration"]
+body:
+  - type: textarea
+    id: input
+    attributes:
+      label: Input
+      description: Provide the exact input you used.
+      placeholder: |
+        Latin input: ...
+        N’Ko input (if any): ...
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Actual output
+      placeholder: |
+        Produced N’Ko: ...
+        Produced Latin normalized: ...
+        Uncertainty flag(s): ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected output
+      description: If you know the expected N’Ko form, provide it and why.
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / references
+      description: Any reference or rule rationale.
+    validations:
+      required: false
+

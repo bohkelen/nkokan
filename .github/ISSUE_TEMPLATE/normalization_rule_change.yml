@@ -1,0 +1,44 @@
+name: Normalization rule change
+description: Propose or track a change to normalization rules (versioned)
+title: "normalization: "
+labels: ["data", "normalization"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are we solving?
+      description: Describe the inconsistency/bug and its impact on search/display.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed rule change
+      description: Be explicit. Include before/after behavior.
+      placeholder: |
+        Rule v1:
+        - ...
+
+        Proposed rule v2:
+        - ...
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples (required)
+      description: Provide concrete examples.
+      placeholder: |
+        Input: ...
+        Normalized (before): ...
+        Normalized (after): ...
+    validations:
+      required: true
+  - type: checkboxes
+    id: versioning
+    attributes:
+      label: Versioning expectations
+      options:
+        - label: "This change should create a new ruleset version (no silent mutation)."
+          required: true
+

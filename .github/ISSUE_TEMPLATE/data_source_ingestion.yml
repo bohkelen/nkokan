@@ -1,0 +1,42 @@
+name: Data source ingestion
+description: Track ingesting a lexicon/corpus source with provenance and licensing notes
+title: "source: "
+labels: ["data", "sources"]
+body:
+  - type: input
+    id: source_name
+    attributes:
+      label: Source name
+      placeholder: "Mali-pense French → Maninka dictionary"
+    validations:
+      required: true
+  - type: input
+    id: source_url
+    attributes:
+      label: Source URL
+      placeholder: "https://..."
+    validations:
+      required: false
+  - type: textarea
+    id: licensing
+    attributes:
+      label: Licensing / permission notes
+      description: What do we know about permission, redistribution, and required attribution?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope (what are we ingesting?)
+      description: Entries only, examples only, selective subset, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Provenance requirements
+      description: What must be stored at entry/sense/example levels?
+      placeholder: "Store source_name, source_url, retrieved_at, license_notes at entry/sense/example."
+    validations:
+      required: true
+
