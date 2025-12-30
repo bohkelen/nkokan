@@ -1,0 +1,31 @@
+name: Bug report
+description: Report a bug in behavior (UI/search/offline/etc.)
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Device/OS/browser (and app version/commit if known).
+      placeholder: "Android 12, Chrome 121..."
+    validations:
+      required: false
+

@@ -1,0 +1,36 @@
+name: Data removal / source maintainer request
+description: Track requests to modify/remove content from a source maintainer or rights holder
+title: "removal: "
+labels: ["sources", "legal"]
+body:
+  - type: textarea
+    id: requester
+    attributes:
+      label: Requester and authority
+      description: Who is requesting removal and what is their relationship to the source?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope of requested change
+      description: What content/source is being requested for removal or modification?
+    validations:
+      required: true
+  - type: textarea
+    id: plan
+    attributes:
+      label: Proposed response plan
+      description: Include disablement/removal approach, timelines, and verification steps.
+    validations:
+      required: true
+  - type: checkboxes
+    id: goals
+    attributes:
+      label: Requirements
+      options:
+        - label: "Provenance records are preserved (audit trail) while content distribution is adjusted."
+          required: true
+        - label: "Offline bundles/datasets will be updated to remove/disable the affected source."
+          required: true
+
