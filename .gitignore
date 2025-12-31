@@ -4,6 +4,7 @@ design.txt
 
 # OS / editor
 .DS_Store
+.cursor/
 .vscode/
 .idea/
 
