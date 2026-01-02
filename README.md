@@ -1,4 +1,4 @@
-# Koumakan
+# Nkokan
 
 Offline-first dictionary and sentence analysis tooling for the Manding language family — starting with **Maninka (Guinea)** — with **Latin + N’Ko** treated as first-class scripts throughout.
 
@@ -36,7 +36,7 @@ See `LICENSE-MIT` and `LICENSE-APACHE`.
 
 ## Project posture (non-commercial, community)
 
-Koumakan is built as **non-commercial language infrastructure** for learners and communities.
+Nkokan is built as **non-commercial language infrastructure** for learners and communities.
 
 - We ask that downstream use **preserves attribution** and respects **source licensing/permissions**.
 - We do **not** intend paywalls, “API resale”, or other extractive commercialization of the lexicon.

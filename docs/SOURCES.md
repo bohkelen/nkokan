@@ -1,6 +1,6 @@
 # Sources, attribution, and provenance
 
-Koumakan modernizes and makes usable (including offline) a set of existing scholarly and lexicographic resources with **attribution-first** intent.
+Nkokan modernizes and makes usable (including offline) a set of existing scholarly and lexicographic resources with **attribution-first** intent.
 
 ## Principles
 
