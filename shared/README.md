@@ -13,5 +13,5 @@ Planned responsibilities (Phase 0/1):
 
 Goal: keep this layer as **stack-neutral** as possible so both `web/` and `api/` can rely on the same contracts.
 
-No shared code has been added yet.
+Specs live in `shared/specs/`.
 
