@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Koumakan will be built as an offline-first dictionary + sentence analysis tool with strict requirements around:
+Nkokan will be built as an offline-first dictionary + sentence analysis tool with strict requirements around:
 
 - shared data contracts (lossless IR, provenance at entry/sense/example)
 - deterministic transliteration (Latin → N’Ko) with uncertainty marking
