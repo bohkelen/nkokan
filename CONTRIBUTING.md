@@ -1,6 +1,6 @@
-# Contributing to Koumakan
+# Contributing to Nkokan
 
-Thanks for helping build Koumakan. This project touches sensitive areas (language correctness, community trust, and third‑party sources), so we optimize for **traceability** and **respect for provenance**.
+Thanks for helping build Nkokan. This project touches sensitive areas (language correctness, community trust, and third‑party sources), so we optimize for **traceability** and **respect for provenance**.
 
 ## Ground rules
 
