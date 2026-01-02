@@ -1,6 +1,7 @@
 # Project docs (kept local; do not commit)
 app description.txt
 design.txt
+cursor_project_requirements_and_design.md
 
 # OS / editor
 .DS_Store
