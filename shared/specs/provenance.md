@@ -38,14 +38,54 @@ Every record that can be displayed to a user MUST carry a `provenance` object wi
 
 ### `record_pointer` (source pointer)
 
-We need a pointer that is stable even if parsing rules change. This can be one of:
+`record_pointer` MUST describe **record identity** in a way that is stable across parsing changes.
+It MUST use the same `kind` variants as `shared/specs/lossless-capture-and-ir.md` (`record_locator.kind`):
 
-- **`kind: "url"`** with `value` set to a stable record URL (preferred if the source has stable per-entry URLs)
-- **`kind: "source_record_id"`** with `value` set to the source’s own identifier (if published)
-- **`kind: "snapshot"`** with:
-  - `snapshot_id`: internal ID for an immutable raw snapshot
-  - `selector`: a CSS selector / XPath / span reference to the extracted fragment (best-effort)
-  - `content_hash`: hash of the extracted fragment (optional but recommended)
+- `kind: "source_record_id"`
+- `kind: "url_canonical+entry_index"`
+- `kind: "css_selector+text_quote"`
+- `kind: "page+bbox+block_index"`
+
+`record_pointer` MUST include:
+
+- `kind`: one of the kinds above
+- the structured fields required by that kind (see below)
+- `snapshot_id` (OPTIONAL but RECOMMENDED when a lossless snapshot exists)
+- `locator` (RECOMMENDED when a snapshot exists; must match the lossless locator contract)
+- `fragment_hash` (OPTIONAL in Phase 1; REQUIRED when feasible in Phase 2; must match lossless hashing rules)
+
+#### Required fields by `record_pointer.kind`
+
+- `kind: "source_record_id"`
+  - `source_record_id`: the source-published stable identifier
+- `kind: "url_canonical+entry_index"`
+  - `url_canonical`
+  - `entry_index` (0-based)
+- `kind: "css_selector+text_quote"`
+  - `css_selector`
+  - `text_quote`
+- `kind: "page+bbox+block_index"`
+  - `page_number` (PDF) OR `page_index` (scan)
+  - `bbox` (normalized; see lossless spec)
+  - `block_index`
+
+#### `locator` (generic fragment locator)
+
+The `locator` object is intentionally shared with `shared/specs/lossless-capture-and-ir.md` so HTML and books are first-class across capture → IR → provenance.
+
+Supported locator fields include:
+
+- HTML:
+  - `css_selector`
+  - `xpath`
+  - `byte_span` (start/end offsets in raw bytes) when feasible
+  - `text_quote`
+- PDF / scans:
+  - `page_number` (PDF) or `page_index` (scanned image)
+  - `bbox` (normalized coordinates; see lossless spec for conventions)
+  - `rotation_degrees` (`0` | `90` | `180` | `270`)
+  - `block_index` (required when `kind: "page+bbox+block_index"`)
+  - `pdf_text_quote` or `ocr_text_quote` (optional)
 
 The key rule: **we must be able to locate the original evidence** without re-scraping.
 
@@ -67,6 +107,10 @@ To keep this transparent, records SHOULD include a `derivation` object:
   - transliteration ruleset (e.g. `nko_translit_v1`)
 
 No “silent mutation”: if a ruleset changes, new outputs must carry the new version.
+
+**Manual overrides / corrections**
+If `derivation.kind = manual_override`, the override MUST be represented as a separate correction record
+(using RFC 6902 JSON Patch semantics) that references a target record + scope. The base evidence MUST remain immutable.
 
 ## Multi-source attribution
 
@@ -100,7 +144,11 @@ The system must support a rights holder request to disable/remove a source:
       "url": "https://example.invalid/mali-pense",
       "retrieved_at": "2026-01-02T00:00:00Z",
       "license_notes": "Public academic resource; permission status pending; attribution required.",
-      "record_pointer": { "kind": "url", "value": "https://example.invalid/mali-pense/entry/123" }
+      "record_pointer": {
+        "kind": "url_canonical+entry_index",
+        "url_canonical": "https://example.invalid/mali-pense/entry/123",
+        "entry_index": 0
+      }
     }
   },
   "derivation": {
@@ -124,10 +172,15 @@ The system must support a rights holder request to disable/remove a source:
       "retrieved_at": "2026-01-02T00:00:00Z",
       "license_notes": "Attribution required; redistribution policy under review.",
       "record_pointer": {
-        "kind": "snapshot",
+        "kind": "css_selector+text_quote",
         "snapshot_id": "snap_9f2c...",
-        "selector": "div.entry:nth-child(4) > p.headword",
-        "content_hash": "sha256:..."
+        "css_selector": "div.entry:nth-child(4) > p.headword",
+        "text_quote": "bàra …",
+        "locator": {
+          "css_selector": "div.entry:nth-child(4) > p.headword",
+          "text_quote": "bàra …"
+        },
+        "fragment_hash": "sha256:..."
       }
     }
   },
@@ -141,3 +194,39 @@ The system must support a rights holder request to disable/remove a source:
 }
 ```
 
+### Provenance with snapshot pointer (PDF/scan-style locator)
+
+```json
+{
+  "provenance": {
+    "source": {
+      "id": "src_some_book",
+      "name": "Some Book (Maninka lexicon)",
+      "url": "https://example.invalid/some-book",
+      "retrieved_at": "2026-01-02T00:00:00Z",
+      "license_notes": "Attribution required; redistribution policy under review.",
+      "record_pointer": {
+        "kind": "page+bbox+block_index",
+        "snapshot_id": "snap_pdf_001",
+        "page_number": 12,
+        "bbox": { "x": 0.10, "y": 0.25, "w": 0.80, "h": 0.10 },
+        "block_index": 0,
+        "locator": {
+          "page_number": 12,
+          "rotation_degrees": 0,
+          "bbox": { "x": 0.10, "y": 0.25, "w": 0.80, "h": 0.10 },
+          "block_index": 0,
+          "pdf_text_quote": "…"
+        },
+        "fragment_hash": "sha256:..."
+      }
+    }
+  },
+  "derivation": {
+    "kind": "imported",
+    "rule_versions": {
+      "normalization": "norm_v1"
+    }
+  }
+}
+```
