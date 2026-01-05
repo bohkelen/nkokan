@@ -50,7 +50,7 @@ It MUST use the same `kind` variants as `shared/specs/lossless-capture-and-ir.md
 
 - `kind`: one of the kinds above
 - the structured fields required by that kind (see below)
-- `snapshot_id` (OPTIONAL but RECOMMENDED when a lossless snapshot exists)
+- `snapshot_id` (OPTIONAL; RECOMMENDED only when a real lossless snapshot exists — do not invent snapshot IDs for URL-only sources)
 - `locator` (RECOMMENDED when a snapshot exists; must match the lossless locator contract)
 - `fragment_hash` (OPTIONAL in Phase 1; REQUIRED when feasible in Phase 2; must match lossless hashing rules)
 
@@ -72,6 +72,10 @@ It MUST use the same `kind` variants as `shared/specs/lossless-capture-and-ir.md
 #### `locator` (generic fragment locator)
 
 The `locator` object is intentionally shared with `shared/specs/lossless-capture-and-ir.md` so HTML and books are first-class across capture → IR → provenance.
+
+**Canonical vs duplicated fields**
+Top-level fields required by `record_pointer.kind` (e.g. `css_selector`, `text_quote`, `page_number`, `bbox`, `block_index`) MAY be duplicated inside `locator`.
+When `locator` is present, it SHOULD be treated as the canonical container for the locator fields; top-level fields are convenience copies to make identity explicit.
 
 Supported locator fields include:
 
