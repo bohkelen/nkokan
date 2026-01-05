@@ -29,10 +29,11 @@ If a source does not provide a level, the record still exists but may have a min
 
 Every record that can be displayed to a user MUST carry a `provenance` object with:
 
+- **`source.id`**: stable internal `source_id` from the Source Registry (required)
 - **`source.name`**: human-readable name (e.g. “Mali-pense French → Maninka dictionary”).
 - **`source.url`**: canonical URL to the source landing page (or record page) *when available*.
 - **`source.retrieved_at`**: ISO-8601 timestamp of when we retrieved the source material used.
-- **`source.license_notes`**: free-text notes on known constraints/permission status (may be “unknown” but must not be omitted).
+- **`source.license_notes`**: free-text notes on known constraints/permission status (may be “unknown” but must not be omitted). Prefer centralizing this in the Source Registry (`shared/specs/source-registry.md`) and copying a short summary here.
 - **`source.record_pointer`**: a stable pointer to the specific source record used (see below).
 
 ### `record_pointer` (source pointer)
@@ -94,6 +95,7 @@ The system must support a rights holder request to disable/remove a source:
 {
   "provenance": {
     "source": {
+      "id": "src_malipense",
       "name": "Mali-pense French → Maninka dictionary",
       "url": "https://example.invalid/mali-pense",
       "retrieved_at": "2026-01-02T00:00:00Z",
@@ -116,6 +118,7 @@ The system must support a rights holder request to disable/remove a source:
 {
   "provenance": {
     "source": {
+      "id": "src_malipense",
       "name": "Mali-pense French → Maninka dictionary",
       "url": "https://example.invalid/mali-pense",
       "retrieved_at": "2026-01-02T00:00:00Z",
