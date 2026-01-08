@@ -166,7 +166,14 @@ Bundle consumers SHOULD:
 - verify hashes
 - import into local storage (e.g., IndexedDB) idempotently
 
-This spec does not mandate delta updates. If deltas are introduced later, they must also be versioned and hash-verified.
+This spec does not mandate delta updates. It reserves `update_mode = "DELTA"` fields for future use; **v1 consumers MUST treat `update_mode = "DELTA"` as unsupported**. If deltas are introduced later, they must also be versioned and hash-verified.
+
+## Compatibility rule (record schema)
+
+Consumers MUST enforce compatibility using **both** schema identity and version:
+
+- `record_schema_id` MUST equal the schema ID the consumer expects (e.g., `lex_v1`)
+- `record_schema_version` MUST be greater than or equal to `consumer_compat.min_record_schema_version`
 
 ## Minimal example manifest (illustrative)
 
