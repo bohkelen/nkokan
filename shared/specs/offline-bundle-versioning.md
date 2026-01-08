@@ -50,7 +50,7 @@ Recommended format (illustrative, not required):
 Additionally, bundles SHOULD include:
 
 - **`bundle_semver`**: optional semantic version for human communication (not authoritative)
-- **`created_at`**: ISO-8601 timestamp
+- **`created_at`**: ISO-8601 timestamp (informational; see determinism rules below)
 
 ## Manifest (required)
 
@@ -59,18 +59,35 @@ Every bundle MUST include a manifest file (e.g., `bundle.manifest.json`) contain
 - **Identity**
   - `bundle_id`
   - `bundle_type` (`seed` | `full`)
-  - `created_at`
+  - `created_at` (OPTIONAL; informational only)
+- **Scope / segmentation (recommended)**
+  - `bundle_scope` (`locale_pack` | `global_seed` | `global_full`)
+  - `locales_included[]` (e.g., `["maninka-GN"]`)
+- **Bundle format metadata (recommended)**
+  - `bundle_format` (e.g., `directory` | `tar` | `zip`)
+  - `compression` (e.g., `zst` | `gzip` | `none`)
 - **Schema compatibility**
   - `record_schema_id` (e.g., `lex_v1`) and `record_schema_version`
   - `manifest_schema_version` (for this manifest format)
+- **Consumer compatibility guardrails (recommended)**
+  - `consumer_compat.min_manifest_schema_version`
+  - `consumer_compat.min_record_schema_version`
+  - `consumer_compat.min_app_version` (OPTIONAL)
 - **Rule versions (required)**
   - `rule_versions.normalization` (e.g., `norm_v1`) — see `shared/specs/normalization-versioning.md`
   - `rule_versions.transliteration` (e.g., `nko_translit_v1`) when applicable
   - `rule_versions.pos_mapping` (e.g., `posmap_v1`) when applicable
   - `rule_versions.url_canonicalization` (e.g., `urlcanon_v1`) when applicable
+- **Corrections (required if corrections are applied)**
+  - `corrections.correctionset_id`
+  - `corrections.sha256` (or include the corrections payload file in `files[]`)
 - **Sources included/excluded (required)**
   - `sources.included[]`: list of `source_id` values (from `shared/specs/source-registry.md`)
-  - `sources.excluded[]`: list of excluded `source_id` values (with reasons)
+  - `sources.excluded[]`: list of excluded source objects (see “Excluded sources” below)
+- **Reconciliation/update semantics (normative)**
+  - `reconciliation_action` (`REPLACE_ALL` | `PATCH`) — v1 MUST be `REPLACE_ALL`
+  - `update_mode` (`REPLACE_ALL` | `DELTA`) — v1 MUST be `REPLACE_ALL`
+  - `base_bundle_id` (REQUIRED if `update_mode = "DELTA"`)
 - **Build lineage (recommended but high-value)**
   - `build_id` (or `bundle_build_id`)
   - `snapshot_group_ids[]` / `crawl_ids[]` used (if available)
@@ -78,11 +95,32 @@ Every bundle MUST include a manifest file (e.g., `bundle.manifest.json`) contain
   - `git_commit` (repo commit that produced the bundle tooling/spec)
 - **Integrity (required)**
   - `files[]`: list of bundle payload files with `{ path, byte_length, sha256 }`
-  - `total_sha256` (hash of a canonicalized file list, or a hash of the archive bytes)
+  - `content_sha256` (required; canonical content hash)
+  - `artifact_sha256` (optional; transport-level hash of downloaded archive bytes, when applicable)
+
+### Excluded sources (normative structure)
+
+Each element of `sources.excluded[]` MUST include:
+
+- `source_id`
+- `reason`
+- `disabled_at` (ISO-8601)
+
+It MAY include:
+
+- `request_ref` (internal ticket/email/thread identifier)
 
 ## Integrity rules (normative)
 
-- Manifests MUST be deterministic: the same build inputs must produce byte-identical manifests (excluding `created_at` if you choose to include it; if included, it must be set deterministically by the build system).
+- **Canonical content hash (required)**:
+  - `content_sha256` MUST be computed as `sha256:` of the UTF-8 bytes of an **RFC 8785 (JCS) canonical JSON** value representing the `files[]` list.
+  - The `files[]` list MUST be sorted by `path` ascending before hashing.
+  - Each element MUST include exactly `{ "path", "byte_length", "sha256" }` for the purposes of the hash.
+- **Transport hash (optional)**:
+  - If the bundle is distributed as a single archive artifact, `artifact_sha256` MAY be provided as the hash of the downloaded archive bytes.
+  - `artifact_sha256` MUST NOT replace `content_sha256`.
+- **created_at determinism**:
+  - `created_at` SHOULD be omitted; if included, it MUST be informational only and MUST NOT be included in any hash computations.
 - Bundle consumers MUST verify integrity using the manifest hashes before using the data.
 
 ## “No silent mutation” across bundles (normative)
@@ -102,6 +140,7 @@ If a source is disabled or a rights holder requests removal:
 
 - A new bundle MUST be produced with that `source_id` excluded.
 - The manifest MUST list that source under `sources.excluded[]` with a reason and timestamp.
+- Bundle consumers MUST treat this as a reconciliation event requiring `reconciliation_action = "REPLACE_ALL"` (v1).
 - The system SHOULD support “tombstoning”:
   - keep internal auditability of what changed
   - ensure distributed bundle content no longer contains excluded material
@@ -137,13 +176,26 @@ This spec does not mandate delta updates. If deltas are introduced later, they m
   "bundle_id": "bundle_full_20260105_ab12cd",
   "bundle_type": "full",
   "created_at": "2026-01-05T00:00:00Z",
+  "bundle_scope": "locale_pack",
+  "locales_included": ["maninka-GN"],
+  "bundle_format": "zip",
+  "compression": "zst",
   "record_schema_id": "lex_v1",
   "record_schema_version": "1",
+  "consumer_compat": {
+    "min_manifest_schema_version": "bundle_manifest_v1",
+    "min_record_schema_version": "1",
+    "min_app_version": "0.1.0"
+  },
   "rule_versions": {
     "normalization": "norm_v1",
     "transliteration": "nko_translit_v1",
     "pos_mapping": "posmap_v1",
     "url_canonicalization": "urlcanon_v1"
+  },
+  "corrections": {
+    "correctionset_id": "corrset_20260105_01",
+    "sha256": "sha256:..."
   },
   "sources": {
     "included": ["src_malipense"],
@@ -151,10 +203,13 @@ This spec does not mandate delta updates. If deltas are introduced later, they m
       {
         "source_id": "src_example_removed",
         "reason": "Removal request from rights holder",
-        "disabled_at": "2026-01-04T00:00:00Z"
+        "disabled_at": "2026-01-04T00:00:00Z",
+        "request_ref": "email-thread-2026-01-04"
       }
     ]
   },
+  "reconciliation_action": "REPLACE_ALL",
+  "update_mode": "REPLACE_ALL",
   "build": {
     "build_id": "build_20260105_01",
     "snapshot_group_ids": ["crawl_2026-01-04_malipense_v1"],
@@ -162,9 +217,11 @@ This spec does not mandate delta updates. If deltas are introduced later, they m
     "git_commit": "abcdef123456"
   },
   "files": [
-    { "path": "records.jsonl.zst", "byte_length": 1234567, "sha256": "sha256:..." }
+    { "path": "records.jsonl.zst", "byte_length": 1234567, "sha256": "sha256:..." },
+    { "path": "corrections.json.zst", "byte_length": 23456, "sha256": "sha256:..." }
   ],
-  "total_sha256": "sha256:..."
+  "content_sha256": "sha256:...",
+  "artifact_sha256": "sha256:..."
 }
 ```
 
